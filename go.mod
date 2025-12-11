@@ -4,6 +4,7 @@ go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.11.0
+	github.com/linxGnu/grocksdb v1.10.3
 	github.com/oapi-codegen/runtime v1.1.2
 )
 

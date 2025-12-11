@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	api "github.com/manis005/kart-challenge/api"
@@ -17,25 +16,13 @@ func main() {
 	st.AddProduct(store.Product{ID: "10", Name: "Chicken Waffle", Price: 299.99, Category: "Waffle"})
 	st.AddProduct(store.Product{ID: "11", Name: "Veg Burger", Price: 149.50, Category: "Burger"})
 
-	couponFiles := []string{
-		"data/couponbase1.gz",
-		"data/couponbase2.gz",
-		"data/couponbase3.gz",
-	}
-
-	for _, p := range couponFiles {
-		if _, err := os.Stat(p); err != nil {
-			log.Fatalf("coupon file missing: %s (put all three files under data/)", p)
-		}
-	}
-
-	mgr, err := coupons.NewManagerFromFiles(couponFiles)
+	// Use RocksDB built offline (do NOT import at startup)
+	dbPath := "data/coupons.db"
+	mgr, err := coupons.NewManagerFromRocks(dbPath)
 	if err != nil {
-		log.Fatalf("failed to load coupons: %v", err)
+		log.Fatalf("failed to open coupons db %s: %v", dbPath, err)
 	}
 	defer mgr.Close()
-
-	log.Printf("coupon manager loaded (%d codes)", len(mgr.Snapshot()))
 
 	svc := server.NewServerImpl(st, mgr)
 
